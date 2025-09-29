@@ -8,14 +8,12 @@
 using namespace std;
 using namespace sf;
 
-// Перечисление состояний игры
 enum class GameState {
     MAIN_MENU,
     PLAYING,
     GAME_OVER
 };
 
-// Класс игры Мемори
 class MemoryGame {
 private:
     struct Card {
@@ -33,7 +31,6 @@ private:
     vector<Card> cards;
     vector<int> selectedCards;
 
-    // Текстуры для фона
     Texture menuBackgroundTexture;
     Texture gameBackgroundTexture;
     Sprite menuBackground;
@@ -41,14 +38,12 @@ private:
 
     GameState currentState;
 
-    // Текст
     Text scoreText;
     Text timeText;
     Text gameOverText;
     Text menuText;
     Text controlsText;
 
-    // Игровые переменные
     int gridSize;
     int cardSize;
     int margin;
@@ -57,17 +52,14 @@ private:
     bool gameStarted;
     bool gameFinished;
     Clock gameClock;
-    Clock flipClock;  // Таймер для задержки переворота
+    Clock flipClock;  
 
-    // Выбор в меню
     int menuSelection;
     int selectedCard;
 
-    // Состояние для задержки
     bool waitingForFlipBack;
     float flipBackTime;
 
-    // Цвета
     Color cardColor = Color::Yellow;
     Color flippedColor = Color::White;
     Color matchedColor = Color::Green;
@@ -83,21 +75,17 @@ public:
         waitingForFlipBack(false), flipBackTime(0.0f) {
         window.create(VideoMode(1280, 720), "Memory Game");
 
-        // Загрузка текстур
         loadTextures();
         initializeGame();
     }
 
     void loadTextures() {
-        // Попытка загрузить фоновое изображение для меню
         if (!menuBackgroundTexture.loadFromFile("memory.jpg")) {
-            cout << "Не удалось загрузить menu_background.jpg. Используется стандартный фон." << endl;
-            // Создаем простой градиентный фон программно
+            cout << "ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г§Г ГЈГ°ГіГ§ГЁГІГј menu_background.jpg. Г€Г±ГЇГ®Г«ГјГ§ГіГҐГІГ±Гї Г±ГІГ Г­Г¤Г Г°ГІГ­Г»Г© ГґГ®Г­." << endl;
             Image gradientImage;
             gradientImage.create(1280, 720, Color::Transparent);
             for (int y = 0; y < 720; ++y) {
                 for (int x = 0; x < 1280; ++x) {
-                    // Градиент от темно-синего к фиолетовому
                     int r = 30 + (x * 20 / 1280);
                     int g = 20;
                     int b = 60 + (y * 40 / 720);
@@ -107,15 +95,12 @@ public:
             menuBackgroundTexture.loadFromImage(gradientImage);
         }
 
-        // Попытка загрузить фоновое изображение для игры
         if (!gameBackgroundTexture.loadFromFile("gamefon.jpg")) {
-            cout << "Не удалось загрузить game_background.jpg. Используется стандартный фон." << endl;
-            // Создаем простой градиентный фон программно
+            cout << "ГЌГҐ ГіГ¤Г Г«Г®Г±Гј Г§Г ГЈГ°ГіГ§ГЁГІГј game_background.jpg. Г€Г±ГЇГ®Г«ГјГ§ГіГҐГІГ±Гї Г±ГІГ Г­Г¤Г Г°ГІГ­Г»Г© ГґГ®Г­." << endl;
             Image gradientImage;
             gradientImage.create(1280, 720, Color::Transparent);
             for (int y = 0; y < 720; ++y) {
                 for (int x = 0; x < 1280; ++x) {
-                    // Градиент от темно-зеленого к темно-синему
                     int r = 20;
                     int g = 40 + (x * 10 / 1280);
                     int b = 60 + (y * 20 / 720);
@@ -129,12 +114,10 @@ public:
         gameBackground.setTexture(gameBackgroundTexture);
     }
     void initializeGame() {
-        // Загрузка шрифта
         if (!font.loadFromFile("arial.ttf")) {
-            cout << "Шрифт не найден! Используется стандартный." << endl;
+            cout << "ГГ°ГЁГґГІ Г­ГҐ Г­Г Г©Г¤ГҐГ­! Г€Г±ГЇГ®Г«ГјГ§ГіГҐГІГ±Гї Г±ГІГ Г­Г¤Г Г°ГІГ­Г»Г©." << endl;
         }
 
-        // Создание пар карт
         vector<int> values;
         int totalPairs = (gridSize * gridSize) / 2;
         for (int i = 0; i < totalPairs; ++i) {
@@ -142,36 +125,30 @@ public:
             values.push_back(i + 1);
         }
 
-        // Перемешивание значений
         random_device rd;
         mt19937 g(rd());
         shuffle(values.begin(), values.end(), g);
 
-        // Создание карт
         cards.clear();
         for (int i = 0; i < gridSize * gridSize; ++i) {
             Card card;
 
-            // Позиция карты
             int row = i / gridSize;
             int col = i % gridSize;
             float x = margin + col * (cardSize + margin);
             float y = margin + row * (cardSize + margin) + 80;
 
-            // Прямоугольник карты
             card.shape.setSize(Vector2f(cardSize, cardSize));
             card.shape.setPosition(x, y);
             card.shape.setFillColor(cardColor);
             card.shape.setOutlineThickness(2);
             card.shape.setOutlineColor(Color::Black);
 
-            // Текст на карте
             card.text.setFont(font);
             card.text.setString(to_string(values[i]));
             card.text.setCharacterSize(30);
             card.text.setFillColor(Color::Black);
 
-            // Центрирование текста
             FloatRect textBounds = card.text.getLocalBounds();
             card.text.setPosition(
                 x + (cardSize - textBounds.width) / 2,
@@ -185,32 +162,27 @@ public:
             cards.push_back(card);
         }
 
-        // Текст счета
         scoreText.setFont(font);
         scoreText.setString("Score: 0");
         scoreText.setCharacterSize(24);
         scoreText.setPosition(20, 10);
         scoreText.setFillColor(Color::White);
 
-        // Текст времени
         timeText.setFont(font);
         timeText.setString("Time: 0.0s");
         timeText.setCharacterSize(24);
         timeText.setPosition(200, 10);
         timeText.setFillColor(Color::White);
 
-        // Текст окончания игры
         gameOverText.setFont(font);
         gameOverText.setString("Game Over! Final Score: 0");
         gameOverText.setCharacterSize(32);
         gameOverText.setFillColor(Color::Yellow);
 
-        // Текст меню
         menuText.setFont(font);
         menuText.setCharacterSize(36);
         menuText.setFillColor(Color::White);
 
-        // Текст управления
         controlsText.setFont(font);
         controlsText.setCharacterSize(20);
         controlsText.setFillColor(Color(200, 200, 200));
@@ -226,7 +198,6 @@ public:
         gameClock.restart();
         flipClock.restart();
 
-        // Выделяем первую карту
         updateCardSelection();
     }
 
@@ -284,7 +255,6 @@ private:
     }
 
     void handleGameInput(Keyboard::Key key) {
-        // Если ждем переворота карт, блокируем ввод
         if (waitingForFlipBack) {
             return;
         }
@@ -366,7 +336,6 @@ private:
             flipCard(selectedCard);
 
             if (selectedCards.size() == 2) {
-                // Запускаем проверку совпадения с задержкой
                 waitingForFlipBack = true;
                 flipBackTime = 0.0f;
                 flipClock.restart();
@@ -400,7 +369,6 @@ private:
             int index2 = selectedCards[1];
 
             if (cards[index1].value == cards[index2].value) {
-                // Карты совпали
                 cards[index1].isMatched = true;
                 cards[index2].isMatched = true;
                 cards[index1].shape.setFillColor(matchedColor);
@@ -411,11 +379,9 @@ private:
                 selectedCards.clear();
                 waitingForFlipBack = false;
 
-                // Проверка окончания игры
                 checkGameOver();
             }
             else {
-                // Карты не совпали - устанавливаем флаг для переворота обратно
                 waitingForFlipBack = true;
                 flipBackTime = 0.0f;
                 flipClock.restart();
@@ -463,17 +429,15 @@ private:
             gameTime = gameClock.getElapsedTime().asSeconds();
             timeText.setString("Time: " + to_string((int)gameTime) + "s");
 
-            // Обработка задержки для переворота карт
             if (waitingForFlipBack) {
                 flipBackTime += flipClock.restart().asSeconds();
 
-                if (flipBackTime >= 1.0f) { // Задержка 1 секунда
+                if (flipBackTime >= 1.0f) {
                     if (selectedCards.size() == 2) {
                         int index1 = selectedCards[0];
                         int index2 = selectedCards[1];
 
                         if (cards[index1].value == cards[index2].value) {
-                            // Карты совпали - оставляем открытыми
                             cards[index1].isMatched = true;
                             cards[index2].isMatched = true;
                             score += 10;
@@ -481,7 +445,6 @@ private:
                             checkGameOver();
                         }
                         else {
-                            // Карты не совпали - переворачиваем обратно
                             flipBackCards();
                             score = max(0, score - 2);
                             scoreText.setString("Score: " + to_string(score));
@@ -492,7 +455,6 @@ private:
                 }
             }
 
-            // Автоматическая проверка совпадения после выбора второй карты
             if (selectedCards.size() == 2 && !waitingForFlipBack) {
                 checkMatch();
             }
@@ -521,7 +483,6 @@ private:
     }
 
     void renderMainMenu() {
-        // Фоновое изображение меню
         window.draw(menuBackground);
 
 
@@ -529,7 +490,6 @@ private:
         updateMenuDisplay();
         window.draw(menuText);
 
-        // Инструкция управления
         controlsText.setString(
             "CONTROLS:\n"
             "UP/DOWN - Select menu option\n"
@@ -546,15 +506,12 @@ private:
     }
 
     void renderGame() {
-        // Фоновое изображение игры
         window.draw(gameBackground);
 
-        // Полупрозрачный overlay для игровой области
         RectangleShape gameArea(Vector2f(1280, 720));
         gameArea.setFillColor(Color(0, 0, 0, 50));
         window.draw(gameArea);
 
-        // Отрисовка карт
         for (const auto& card : cards) {
             window.draw(card.shape);
             if (card.isFlipped || card.isMatched) {
@@ -562,18 +519,15 @@ private:
             }
         }
 
-        // Отрисовка текста
         window.draw(scoreText);
         window.draw(timeText);
 
-        // Инструкция во время игры
         controlsText.setString(
             "CONTROLS: ARROWS=MOVE  SPACE=FLIP  R=RESTART  ESC=MENU"
         );
         controlsText.setPosition(400 - controlsText.getLocalBounds().width / 2, 50);
         window.draw(controlsText);
 
-        // Отображение таймера переворота (для отладки)
         if (waitingForFlipBack) {
             Text flipText;
             flipText.setFont(font);
@@ -591,7 +545,6 @@ private:
 
         window.draw(gameOverText);
 
-        // Текст с инструкцией
         Text restartText;
         restartText.setFont(font);
         restartText.setString("Press ENTER for Main Menu or R to Restart");
